@@ -1,3 +1,15 @@
+/*
+Була помилка яку сам клауд же і пофіксав 
+
+ось що він зробив Я змінив розташування поля "Quantity New" - тепер воно додається після поля "Status", яке точно існує на сторінці Sales Order. Це стандартне поле, яке присутнє в групі General.
+Альтернативні варіанти розташування, якщо потрібно:
+
+addlast(General) - додасть в кінець групи General
+addfirst(General) - додасть на початок групи General
+addafter("Posting Date") - після дати проведення
+addafter("Document Date") - після дати документа
+*/
+
 pageextension 55000 "KUBP Sales Order Ext" extends "Sales Order"
 {
     layout
@@ -15,14 +27,15 @@ pageextension 55000 "KUBP Sales Order Ext" extends "Sales Order"
                 ToolTip = 'Specifies the related opportunity number';
             }
         }
-        addafter("Amount Including VAT")
+        addafter(Status)
         {
             field("Quantity New"; Rec."Quantity New")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the sum of Quantity New from sales lines';
-
-                trigger OnAfterValidate()
+                Importance = Promoted;
+                
+                trigger OnValidate()
                 begin
                     CurrPage.Update();
                 end;
@@ -56,7 +69,7 @@ pageextension 55000 "KUBP Sales Order Ext" extends "Sales Order"
                     SalesLine.SetRange("Document Type", Rec."Document Type");
                     SalesLine.SetRange("Document No.", Rec."No.");
                     SalesLine.SetRange(Type, SalesLine.Type::"Fixed Asset");
-
+                    
                     if SalesLine.FindSet(true) then begin
                         repeat
                             SalesLine.Validate("Unit Price", 0);

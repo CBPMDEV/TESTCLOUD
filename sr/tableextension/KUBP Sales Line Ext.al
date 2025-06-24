@@ -20,7 +20,6 @@ tableextension 55001 "KUBP Sales Line Ext" extends "Sales Line"
     begin
         if SalesHeader.Get("Document Type", "Document No.") then begin
             SalesHeader.CalcFields("Quantity New");
-            CurrPage.Update(false);
         end;
     end;
 }

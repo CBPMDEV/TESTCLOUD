@@ -19,9 +19,17 @@ codeunit 55000 "KUBP Sales Post Events"
         GLEntry."CBPM Opportunity No." := GenJournalLine."CBPM Opportunity No.";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnPostSalesLineOnBeforeGenJnlLinePost', '', false, false)]
-    local procedure OnPostSalesLineOnBeforeGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    // Використовуємо подію з таблиці Gen. Journal Line для передачі даних
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromSalesHeader', '', false, false)]
+    local procedure OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        GenJnlLine."CBPM Opportunity No." := SalesHeader."CBPM Opportunity No.";
+        GenJournalLine."CBPM Opportunity No." := SalesHeader."CBPM Opportunity No.";
+    end;
+
+    // Альтернативна подія для міжкомпанійних транзакцій
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeInsertICGenJnlLine', '', false, false)]
+    local procedure OnBeforeInsertICGenJnlLine(var ICGenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean)
+    begin
+        ICGenJournalLine."CBPM Opportunity No." := SalesHeader."CBPM Opportunity No.";
     end;
 }
